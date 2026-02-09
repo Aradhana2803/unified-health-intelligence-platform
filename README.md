@@ -15,28 +15,37 @@ This repo is a **cloud-native web platform** MVP (hackathon-ready) with:
 ## Architecture
 ```mermaid
 flowchart LR
-  subgraph Client
-    L[Landing] -->|role| Login[Login Pages]
-    Login --> App[RBAC App Shell]
-  end
 
-  subgraph Backend["Node.js API (Express)"]
-    Auth[Auth + JWT] --> ConsentMW[Consent Middleware]
-    ConsentMW --> EHR[EHR Versioning + Diff Engine]
-    ConsentMW --> Alerts[Alerts + Socket.IO]
-    ConsentMW --> FHIR[FHIR Adapters / API Gateway (stub)]
-    EHR --> PG[(PostgreSQL)]
-    Alerts --> PG
-    ConsentMW --> Mongo[(MongoDB)]
-  end
+subgraph Client
+  L[Landing Page] --> Login[Login Pages]
+  Login --> App[RBAC App Shell]
+end
 
-  subgraph AI["FastAPI AI Service"]
-    Model[Rule+ML Hybrid]
-  end
+subgraph Backend["Node API"]
+  Auth[Authentication JWT]
+  ConsentMW[Consent Middleware]
+  EHR[EHR Versioning and Diff Engine]
+  Alerts[Alerts and Realtime Push]
+  FHIR[FHIR Adapter Gateway]
+  PG[(PostgreSQL)]
+  Mongo[(MongoDB)]
+end
 
-  App -->|REST| Backend
-  App -->|WebSocket| Alerts
-  Backend -->|/ai/predict| AI
+subgraph AI["AI Service"]
+  Model[Rule and ML Hybrid Engine]
+end
+
+Auth --> ConsentMW
+ConsentMW --> EHR
+ConsentMW --> Alerts
+ConsentMW --> FHIR
+EHR --> PG
+Alerts --> PG
+ConsentMW --> Mongo
+
+App --> Backend
+Backend --> AI
+
 ```
 
 ## Quickstart (Docker)
